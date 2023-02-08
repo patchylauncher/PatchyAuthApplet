@@ -1,7 +1,5 @@
 package com.eziosoft.patchyauthapplet.objects.microsoft;
 
-import jdk.nashorn.internal.runtime.ECMAException;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
