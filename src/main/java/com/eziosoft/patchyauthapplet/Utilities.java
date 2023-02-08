@@ -15,7 +15,15 @@ import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -86,12 +94,59 @@ public class Utilities {
      * Produces a file importable by PatchyLauncher for authentication
      * @param auth the authentication information to dump to a file
      */
-    public static void createAuthenticationFile(PatchyAuthJson auth){
+    public static String createAuthenticationFile(PatchyAuthJson auth, String password){
         // get a gson with pretty printing enabled
         Gson g = new GsonBuilder().setPrettyPrinting().create();
         // get the object as json text
         String json = g.toJson(auth);
-        // TODO: write the rest of this function lmao
+        // encrypt the text with the password
+        String enc;
+        try {
+            enc = EncryptTextWithPassword(json, password);
+        } catch (Exception e){
+            System.err.println("Error while trying to encrypt text!");
+            e.printStackTrace();
+            System.err.println("Continuing by storing the file in plaintext!");
+            enc = json;
+        }
+        // open a new file
+        File authfile = new File("authenticate.json");
+        // write to it
+        try {
+            FileWriter filew = new FileWriter(authfile);
+            BufferedWriter writer = new BufferedWriter(filew);
+            writer.write(enc);
+            // clean up
+            writer.close();
+            filew.close();
+        } catch (IOException e){
+            System.err.println("Error while trying to save file!");
+            e.printStackTrace();
+            System.err.println("The raw data to save yourself is:");
+            System.out.println(enc);
+            return "error";
+        }
+        // get the path of the file
+        // exit
+        return authfile.getAbsolutePath();
+    }
+
+    /**
+     * encrypts a string with a user provided password
+     * @param text the text to encrypt
+     * @param password password to encrypt the  text with
+     * @return encrypted text
+     * @throws Exception oh, no, something broke
+     */
+    private static String EncryptTextWithPassword(String text, String password) throws Exception{
+        // setup the encryption
+        SecretKey key = new SecretKeySpec(password.getBytes(StandardCharsets.UTF_8), "AES");
+        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding", "SunJCE");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        // encrypt it
+        byte[] encrypted = cipher.doFinal(text.getBytes(StandardCharsets.UTF_8));
+        // return it
+        return Base64.getEncoder().encodeToString(encrypted);
     }
 
     /**
