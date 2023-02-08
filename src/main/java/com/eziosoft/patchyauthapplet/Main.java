@@ -23,6 +23,8 @@ public class Main {
         }
         // TODO: all of this shit
         System.out.println("wow! this is unfinished");
+        System.out.println("so have console mode");
+        runUI(args);
     }
 
     private static void runUI(String[] args) throws IOException{
