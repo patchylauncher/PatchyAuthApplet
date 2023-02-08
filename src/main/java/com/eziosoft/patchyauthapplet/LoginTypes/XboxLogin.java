@@ -37,11 +37,11 @@ public class XboxLogin {
         return new XboxToken(auth.getToken(), auth.getDisplayClaims().getXui()[0].getUhs());
     }
 
-    public static XboxToken GetXSTSToken(String xboxtoken) throws IOException {
+    public static XboxToken GetXSTSToken(XboxToken xboxtoken) throws IOException {
         // first, setup the request enitiy, involves an xbox token like before
         XSTSAuthProperties props = new XSTSAuthProperties(
                 "RETAIL",
-                new String[]{ xboxtoken }
+                new String[]{ xboxtoken.getToken() }
         );
         // now setup the request json
         XSTSAuthRequest auth = new XSTSAuthRequest("JWT", xsts_default_part, props);

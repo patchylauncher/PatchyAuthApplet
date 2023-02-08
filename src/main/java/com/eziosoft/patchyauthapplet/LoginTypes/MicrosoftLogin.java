@@ -24,7 +24,7 @@ public class MicrosoftLogin {
     private static final String tokenurl = "https://login.live.com/oauth20_token.srf";
 
 
-    public static MSCodeRedeemResponse GetOAuthToken(MSCodeRequest request) throws IOException, ParseException {
+    public static MSCodeRedeemResponse GetOAuthToken(MSCodeRequest request) throws IOException {
         // setup the apache http client
         HttpPost httpPost = new HttpPost(tokenurl);
         // create form content
@@ -40,13 +40,19 @@ public class MicrosoftLogin {
         CloseableHttpClient client = HttpClients.createDefault();
         CloseableHttpResponse response = client.execute(httpPost);
         if (response.getCode() != HttpStatus.SC_OK){
-            System.err.println("Webserver is not ok!");
-            System.err.println("status code is " + response.getCode());
+            int code = response.getCode();
             response.close();
             client.close();
-            return null;
+            throw new IOException("Web Server responded with error code " + code);
         }
-        String json = EntityUtils.toString(response.getEntity());
+        String json;
+        try {
+            json = EntityUtils.toString(response.getEntity());
+        } catch (ParseException e){
+            // TODO: write more descriptive error message
+            // for now, though, just rethrow it
+            throw new IOException(e);
+        }
         // close the response and the client
         response.close();
         client.close();

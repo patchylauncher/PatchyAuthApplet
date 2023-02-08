@@ -8,53 +8,66 @@ import com.eziosoft.patchyauthapplet.objects.microsoft.MSCodeRedeemResponse;
 import com.eziosoft.patchyauthapplet.objects.microsoft.MSCodeRequest;
 import com.eziosoft.patchyauthapplet.objects.minecraft.MinecraftProfile;
 import com.eziosoft.patchyauthapplet.objects.xbox.XboxToken;
-import org.apache.hc.core5.http.ParseException;
 
 import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws IOException, ParseException {
+    public static void main(String[] args) throws IOException {
         System.out.println("PatchyAuthApplet v0.1");
-        // make a new msurl
+        if (args.length > 0){
+            // run the new TUI
+            runUI(args);
+            return;
+        }
+        // TODO: all of this shit
+        System.out.println("wow! this is unfinished");
+    }
+
+    private static void runUI(String[] args) throws IOException{
+        System.out.println("Console mode started");
+        // first, build the main MSA url
         MSAuthUrl msurl = new MSAuthUrl();
-        // get the url
         String url = msurl.buldURL();
-        // make the user visit the url
-        System.out.println("Go to this url in your browser and then paste in the code:");
-        System.out.println(url);
-        // read the console for the code
-        // setup a scanner to do so
+        // open the url
+        System.out.println("The Microsoft account sign-in screen will be automatically opened.");
+        System.out.println("Please sign in to the account that owns a copy of Minecraft: Java Edition.");
+        System.out.println("Once you sign in, you will be brought to a blank page. Copy everything after the \"?code=\" and then paste it into the console");
+        try {
+            // opens in default browser for a handful of supported operating systems
+            Utilities.OpenInDefaultBrowser(url);
+        } catch (IOException e){
+            System.err.println("Error while attempting to open in default browser!");
+            e.printStackTrace();
+            System.out.println("You will have to manually open the following url:");
+            System.out.println(url);
+        }
+        // wait for the code to be entered
         Scanner in = new Scanner(System.in);
-        String code = in.nextLine();
-        if (code.isEmpty()){
-            System.err.println("Please enter a code next time!");
-            System.exit(-1);
+        String frack = in.nextLine();
+        while (frack.trim().isEmpty()){
+            System.out.println("Please paste the code into the console and press enter");
+            frack = in.nextLine();
         }
-        // next, do the ms request
-        MSCodeRequest req = new MSCodeRequest(code, MSAuthUrl.default_redirect, MSAuthUrl.mclaunchid);
-        req.SetGrantAuth();
-        MSCodeRedeemResponse dank = MicrosoftLogin.GetOAuthToken(req);
-        // see if we got anything
-        if (dank == null){
-            throw new IOException("Returned response is null!");
-        }
-        System.out.println("MSA Access token: " + dank.getAccess_token());
-        System.out.println("MSA Refresh Token " + dank.getRefresh_token());
-        // then, get xbox token
-        XboxToken dank2 = XboxLogin.GetXboxTonken(dank);
-        System.out.println("Xbox Live Token: " + dank2.getToken());
-        // get xsts token
-        XboxToken xsts = XboxLogin.GetXSTSToken(dank2.getToken());
-        System.out.println("XSTS Token: " + xsts.getToken());
-        System.out.println("XBL3.0 x=");
-        System.out.println(xsts.getCombinedToken());
-        // get minecraft token
-        String mcaccess = MinecraftLogin.getMinecraftAccessToken(xsts);
-        System.out.println("Minecraft Access Token: " + mcaccess);
-        // get minecraft profile
-        MinecraftProfile mcp = MinecraftLogin.getMinecraftProfile(mcaccess);
-        System.out.println("MC UUID: " +mcp.getId());
-        System.out.println("MC Name: " + mcp.getName());
+        // once we have the code, get rid of the scanner
+        in.close();
+        // continue the authentication chain
+        System.out.println("Now authenticating with Microsoft...");
+        MSCodeRequest msreq = new MSCodeRequest(frack, MSAuthUrl.default_redirect, MSAuthUrl.mclaunchid);
+        msreq.SetGrantAuth();
+        MSCodeRedeemResponse coderedeem = MicrosoftLogin.GetOAuthToken(msreq);
+        System.out.println("Now authenticating with Xbox Live...");
+        XboxToken xboxlive = XboxLogin.GetXboxTonken(coderedeem);
+        System.out.println("Now authenticating with XSTS...");
+        XboxToken xststoken = XboxLogin.GetXSTSToken(xboxlive);
+        System.out.println("Now authenticating with Minecraft...");
+        String mcaccess = MinecraftLogin.getMinecraftAccessToken(xststoken);
+        // TODO: check if they own the game lmao
+        MinecraftProfile profile = MinecraftLogin.getMinecraftProfile(mcaccess);
+        System.out.println("Logged into minecraft!");
+        System.out.println("Profile name: " + profile.getName());
+        System.out.println("Profile UUID: " + profile.getFixedUUID());
+        System.out.println("Skin 0 URL: " + profile.getSkins()[0].getUrl());
+        System.out.println("Access Token: ");
     }
 }

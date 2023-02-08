@@ -1,5 +1,6 @@
 package com.eziosoft.patchyauthapplet;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -48,6 +49,21 @@ public class Utilities {
         response.close();
         client.close();
         return beans;
+    }
+
+    public static void OpenInDefaultBrowser(String url) throws IOException{
+        // basically, just do the different things you need to do for xyz platform.
+        if (SystemUtils.IS_OS_LINUX){
+            Runtime.getRuntime().exec("xdg-open " + url);
+        } else if (SystemUtils.IS_OS_WINDOWS){
+            Runtime.getRuntime().exec("start " + url);
+        } else if (SystemUtils.IS_OS_MAC){
+            Runtime.getRuntime().exec("open " + url);
+        } else {
+            System.out.println("Hmm, we don't know how to open your default browser!");
+            System.out.println("Please manually open this link in your browser of choice:");
+            System.out.println(url);
+        }
     }
 
     public static String doAuthorizedGet(String token, String url) throws IOException {
