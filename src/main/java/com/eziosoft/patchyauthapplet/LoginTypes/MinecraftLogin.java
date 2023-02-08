@@ -25,6 +25,12 @@ public class MinecraftLogin {
     public static String default_minecraft_xbox = "https://api.minecraftservices.com/authentication/login_with_xbox";
     public static String default_minecraft_profile = "https://api.minecraftservices.com/minecraft/profile";
 
+    /**
+     * gets an access token for your minecraft account from the Minecraft API
+     * @param token the Xbox token from a previous request to XSTS
+     * @return string with your minecraft access token
+     * @throws IOException oh no, the api endpoint doesnt like you
+     */
     public static String getMinecraftAccessToken(XboxToken token) throws IOException {
         // first make a authrequest object
         MinecraftXboxAuthRequest xboxauth = new MinecraftXboxAuthRequest("XBL3.0 x=" + token.getCombinedToken());
@@ -34,6 +40,12 @@ public class MinecraftLogin {
         return g.fromJson(json, MinecraftAuthResponse.class).getAccess_token();
     }
 
+    /**
+     * gets the profile of the minecraft user who owns the access token
+     * @param token minecraft access token
+     * @return the Minecraft player profile who owns the account
+     * @throws IOException oh no, the api endpoint doesnt like you
+     */
     public static MinecraftProfile getMinecraftProfile(String token) throws IOException {
         // its simple really
         // get the returned json

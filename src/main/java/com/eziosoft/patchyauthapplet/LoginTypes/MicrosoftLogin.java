@@ -24,6 +24,12 @@ public class MicrosoftLogin {
     private static final String tokenurl = "https://login.live.com/oauth20_token.srf";
 
 
+    /**
+     * gets the required OAuth token for your microsoft account
+     * @param request the data required to make the request
+     * @return the response in parsed json form
+     * @throws IOException oh no, the web server didnt like your request
+     */
     public static MSCodeRedeemResponse GetOAuthToken(MSCodeRequest request) throws IOException {
         // setup the apache http client
         HttpPost httpPost = new HttpPost(tokenurl);

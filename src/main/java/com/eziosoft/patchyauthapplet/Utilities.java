@@ -1,5 +1,8 @@
 package com.eziosoft.patchyauthapplet;
 
+import com.eziosoft.patchyauthapplet.objects.PatchyAuthJson;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -18,6 +21,13 @@ import java.util.Map;
 
 public class Utilities {
 
+    /**
+     * routine for easily POSTing json data to a webpage
+     * @param url url to post too
+     * @param json json data to psost
+     * @return returned web content as a string
+     * @throws IOException if the web server didnt like your request
+     */
     public static String doJsonHttpPost(String url, String json) throws IOException {
         // first, make the StringEntity
         StringEntity cont = new StringEntity(
@@ -51,6 +61,12 @@ public class Utilities {
         return beans;
     }
 
+    /**
+     * cheap n dirty hack to open a url in the yser's default browser
+     * only works on Windows, Linux and Mac OS
+     * @param url url to open
+     * @throws IOException oh no, your system is fucked (probably)
+     */
     public static void OpenInDefaultBrowser(String url) throws IOException{
         // basically, just do the different things you need to do for xyz platform.
         if (SystemUtils.IS_OS_LINUX){
@@ -66,6 +82,25 @@ public class Utilities {
         }
     }
 
+    /**
+     * Produces a file importable by PatchyLauncher for authentication
+     * @param auth the authentication information to dump to a file
+     */
+    public static void createAuthenticationFile(PatchyAuthJson auth){
+        // get a gson with pretty printing enabled
+        Gson g = new GsonBuilder().setPrettyPrinting().create();
+        // get the object as json text
+        String json = g.toJson(auth);
+        // TODO: write the rest of this function lmao
+    }
+
+    /**
+     * function to easily make authorized git requests
+     * @param token authorization token to go into the header
+     * @param url url to make get request too
+     * @return string of returned page
+     * @throws IOException if the wen server didnt like your request for some reason
+     */
     public static String doAuthorizedGet(String token, String url) throws IOException {
         // setup the authorization headers
         HashMap<String, String> headers = new HashMap<>();

@@ -3,6 +3,7 @@ package com.eziosoft.patchyauthapplet;
 import com.eziosoft.patchyauthapplet.LoginTypes.MicrosoftLogin;
 import com.eziosoft.patchyauthapplet.LoginTypes.MinecraftLogin;
 import com.eziosoft.patchyauthapplet.LoginTypes.XboxLogin;
+import com.eziosoft.patchyauthapplet.objects.PatchyAuthJson;
 import com.eziosoft.patchyauthapplet.objects.microsoft.MSAuthUrl;
 import com.eziosoft.patchyauthapplet.objects.microsoft.MSCodeRedeemResponse;
 import com.eziosoft.patchyauthapplet.objects.microsoft.MSCodeRequest;
@@ -66,8 +67,7 @@ public class Main {
         MinecraftProfile profile = MinecraftLogin.getMinecraftProfile(mcaccess);
         System.out.println("Logged into minecraft!");
         System.out.println("Profile name: " + profile.getName());
-        System.out.println("Profile UUID: " + profile.getFixedUUID());
-        System.out.println("Skin 0 URL: " + profile.getSkins()[0].getUrl());
-        System.out.println("Access Token: ");
+        // make the a json object to hold it all
+        PatchyAuthJson object = new PatchyAuthJson(mcaccess, profile.getFixedUUID(), profile.getName());
     }
 }
